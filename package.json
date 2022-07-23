@@ -5,8 +5,9 @@
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/index.d.ts",
+  "files": ["lib", "README.md"],
   "scripts": {
-    "build": "rm -rf dist && rollup -c"
+    "build": "rm -rf lib && rollup -c"
   },
   "keywords": [
     "react-modal",
