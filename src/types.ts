@@ -1,11 +1,14 @@
+
+export type ModalSize = "sm" | "md" | "lg" | "xl" | "fullscreen"
 export interface ModalProps{
   show: boolean;
   onClose: () => void;
-  size?: "sm" | "md" | "lg" | "xl" | "fullscreen"
+  size?: ModalSize
   clickOverlayToClose?: boolean;
+  closeOnEsc: boolean;
   blurOverlay?: boolean;
   scrollContent?: boolean;
-  effect?: "fade" | "slide";
+  animation?: "fade" | "slide";
   children: JSX.Element[] | JSX.Element;
 }
 

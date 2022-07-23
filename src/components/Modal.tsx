@@ -1,8 +1,18 @@
 import { css } from "@emotion/css";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, KeyboardEventHandler, useEffect, useState } from "react";
 import { ModalProps } from "../types";
 import ModalContextProvider from "../context/ModalContext";
 import ContextSetter from "./ContextSetter";
+import {
+  baseStyles,
+  executeFade,
+  executeSlide,
+  modalContainer,
+  modalContentContainer,
+  opacityOne,
+  prepareFade,
+  prepareSlide,
+} from "./modal-styles";
 
 const allowedSubComponents = ["ModalHeader", "ModalBody", "ModalFooter"];
 
@@ -10,12 +20,16 @@ const Modal: FC<ModalProps> = ({
   show,
   scrollContent,
   size,
-  effect,
+  animation,
   ...props
 }) => {
   const [modalContenClassNames, setModalContenClassNames] = useState<string[]>(
     []
   );
+
+  const handleCloseOnEsc: KeyboardEventHandler<HTMLDivElement> = (e) => {
+    if (e.key == "Escape") props.onClose();
+  };
 
   useEffect(() => {
     if (show) {
@@ -43,72 +57,36 @@ const Modal: FC<ModalProps> = ({
       // ADD BASE STYLING FOR MODAL CONTENT
       setModalContenClassNames((prevClasses) => [
         ...prevClasses,
-        css`
-          position: absolute;
-          z-index: 100010;
-          opacity: 0;
-          top: ${size === "fullscreen" ? 0 : "10%"};
-          left: ${50 - Math.round(width / 2)}%;
-          width: ${width}%;
-          min-height: ${size === "fullscreen" ? "100%" : "60%"};
-          height: ${
-            scrollContent ? (size === "fullscreen" ? "100%" : "auto") : "auto"
-          };
-          max-height: ${
-            scrollContent ? (size == "fullscreen" ? "100%" : "80%") : "auto"
-          }
-          background: white;
-          border-radius: ${size === "fullscreen" ? 0 : "8px"};
-          padding: 1.4rem;
-          margin-bottom: 4rem;
-          box-shadow: 0 0 10px -4px #000;
-          display: flex;
-          flex-direction: column;
-          justify-content: start;
-          align-items: start;
-        `,
+        baseStyles(size ?? "md", width, !!scrollContent),
       ]);
       // PREVENT DOCUMENT BODY SCROLLING
       document.body.style.overflow = "hidden";
 
-      if (!!effect) {
-        if (effect === "fade") {
+      if (!!animation) {
+        if (animation === "fade") {
           // Prepare Fade Effect
           setModalContenClassNames((prevClasses) => [
             ...prevClasses,
-            css`
-              opacity: 0;
-              transform: scale(0.9);
-            `,
+            prepareFade(),
           ]);
           setTimeout(() => {
             // Execute Fade Effect
             setModalContenClassNames((prevClasses) => [
               ...prevClasses,
-              css`
-                transition: all 100ms ease-in;
-                transform: scale(1);
-                opacity: 1;
-              `,
+              executeFade(),
             ]);
           }, 50);
-        } else if (effect === "slide") {
+        } else if (animation === "slide") {
           // Prepare Slide Effect
           setModalContenClassNames((prevClasses) => [
             ...prevClasses,
-            css`
-              top: 100vh;
-              opacity: 1;
-            `,
+            prepareSlide(),
           ]);
           setTimeout(() => {
             // Execute Slide Effect
             setModalContenClassNames((prevClasses) => [
               ...prevClasses,
-              css`
-                transition: top 100ms ease-in;
-                top: ${size === "fullscreen" ? 0 : "10%"};
-              `,
+              executeSlide(size ?? "md"),
             ]);
           }, 50);
         }
@@ -116,9 +94,7 @@ const Modal: FC<ModalProps> = ({
         // NO EFFECTS REQUESTED. DISPLAY MODAL
         setModalContenClassNames((prevClasses) => [
           ...prevClasses,
-          css`
-            opacity: 1;
-          `,
+          opacityOne(),
         ]);
       }
     } else {
@@ -128,25 +104,9 @@ const Modal: FC<ModalProps> = ({
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [show, size]);
+  }, [show, size, animation, scrollContent]);
 
-  const modalContainer = css`
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 100000;
-    backdrop-filter: ${props?.blurOverlay ? "blur(10px)" : "none"};
-  `;
-  const modalContentContainer = css`
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    background: transparent;
-    position: relative;
-  `;
+  // Allowing only permitted children
 
   let SubComponents = React.Children.map(
     props.children,
@@ -155,8 +115,7 @@ const Modal: FC<ModalProps> = ({
     }
   );
 
-  console.log("Subcomponents", SubComponents);
-
+  // Warning zero children passed
   if (!SubComponents || SubComponents?.length === 0) {
     console.warn(
       "<Modal /> requires valid children. These include <ModalHeader />, <ModalFooter />, <ModalBody />, <ModalCloseButton />"
@@ -165,13 +124,16 @@ const Modal: FC<ModalProps> = ({
 
   if (!show) return null;
 
+  const modalContainerClassName = modalContainer(props.blurOverlay ?? false)
+  const modalContentContainerClassName = modalContentContainer();
+
   return (
-    <div className={modalContainer}>
+    <div className={modalContainerClassName} onKeyUp={handleCloseOnEsc}>
       <div
         onClick={() => {
           if (props.clickOverlayToClose) props.onClose();
         }}
-        className={modalContentContainer}
+        className={modalContentContainerClassName}
       >
         <div className={modalContenClassNames.join(" ")}>
           <ModalContextProvider>
