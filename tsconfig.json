@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+   "rootDir": "src",
+   "outDir": "lib",
+   "target": "es5",
+   "module": "ESNext",
+   "moduleResolution": "node",
+   "jsx": "react",
+   "forceConsistentCasingInFileNames": true,
+   "esModuleInterop": true,
+   "allowSyntheticDefaultImports": true,
+   "importHelpers": true,
+   "strict": true,
+   "skipLibCheck": true
+  },
+  "exclude": ["node_modules"]
+}
