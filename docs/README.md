@@ -62,7 +62,7 @@ const MyComponent = (props) => {
 |clickOverlayToClose|If true,the modal closes when overlay is clicked|`boolean`|No
 |blurOverlay|If true, blur filter is applied to overlay|`boolean`|No
 |scrollContent|If true, then modal maintains a fixed height in case of content overflow. The modal body becomes scrollable. If false, then modal assumes entire height of content and the overlay is scrollable|`boolean`|No
-|effect|Determines the entry effect of the modal|`fade` or `slide`|No
+|animation|Determines the entry animation of the modal|`fade` or `slide`|No
 
 ### ModalHeader
 
